@@ -1,0 +1,9 @@
+[package]
+name = "ggg"
+version = "0.0.1"
+authors = ["Fran Casas <nflamel@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

@@ -1,5 +1,5 @@
-pub mod credentials;
-pub mod api_router;
+pub mod v3;
+mod credentials;
 
 use reqwest::header;
 use reqwest::header::HeaderMap;

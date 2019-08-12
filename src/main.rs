@@ -13,7 +13,7 @@ fn main() {
     env_logger::init();
 
     let client = github::client().unwrap();
-    let routes = github::api_router::get_routes().unwrap();
+    let routes = github::v3::api_router::get_routes().unwrap();
     let notifications_url = routes.notifications_url;
 
     let mut resp = client.get(&notifications_url).send().unwrap();

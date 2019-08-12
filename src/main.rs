@@ -13,9 +13,10 @@ fn main() {
     env_logger::init();
 
     let client = github::client().unwrap();
-    let url = github::api_router::notifications();
+    let routes = github::api_router::get_routes().unwrap();
+    let notifications_url = routes.notifications_url;
 
-    let mut resp = client.get(&url).send().unwrap();
+    let mut resp = client.get(&notifications_url).send().unwrap();
     let nots: JsonArray = resp.json().unwrap();
 
     debug!("{:#?}", nots);
@@ -28,13 +29,6 @@ fn main() {
 
         let nots_count = repos_map.entry(repo_name).or_insert(0);
         *nots_count += 1;
-
-        info!(
-            "[{repo} | {reason}] {title}",
-            repo = n["repository"]["full_name"],
-            reason = n["reason"],
-            title = n["subject"]["title"]
-        );
     }
 
     println!("Total notifications: {}", nots.len());

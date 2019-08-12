@@ -7,6 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# Command Line Argument Parser
+clap = "2.33"
+
 # HTTP Client
 reqwest = "0.9.19"
 

@@ -37,8 +37,6 @@ fn main() {
         );
     }
 
-    debug!("{:#?}", nots[0]);
-
     println!("Total notifications: {}", nots.len());
 
     for (repo, nots_count) in &repos_map {

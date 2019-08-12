@@ -5,18 +5,30 @@ extern crate log;
 extern crate env_logger;
 
 use github_rs::client::{Executor, Github};
+use github_rs::errors::Error as GithubError;
+use github_rs::{HeaderMap, StatusCode};
+
 use serde_json::Value;
 use std::collections::HashMap;
 
 type JsonArray = Vec<Value>;
 
+fn new_client() -> Result<Github, GithubError> {
+    let token = credentials::github_api_token();
+    Github::new(token)
+}
+
+fn my_notifications(
+    client: &Github,
+) -> Result<(HeaderMap, StatusCode, Option<JsonArray>), GithubError> {
+    client.get().notifications().execute::<JsonArray>()
+}
+
 fn main() {
     env_logger::init();
 
-    let token = credentials::github_api_token();
-    let client = Github::new(token).unwrap();
-
-    let (headers, status, json) = client.get().notifications().execute::<JsonArray>().unwrap();
+    let client = new_client().unwrap();
+    let (headers, status, json) = my_notifications(&client).unwrap();
 
     debug!("Status: {:#?}", status);
     debug!("Headers: {:#?}", headers);
@@ -42,6 +54,7 @@ fn main() {
         debug!("{:#?}", nots[0]);
 
         println!("Total notifications: {}", nots.len());
+
         for (repo, nots_count) in &repos_map {
             println!("Notifications {}: {}", repo, nots_count);
         }

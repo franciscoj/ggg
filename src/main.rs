@@ -1,3 +1,4 @@
+mod commands;
 mod github;
 
 #[macro_use]
@@ -31,20 +32,22 @@ fn main() {
         )
         .get_matches();
 
-    let client = github::client().unwrap();
-    let routes = github::v3::api_router::get_routes().unwrap();
-    let notifications_url = routes.notifications_url;
-
-    let mut resp = client.get(&notifications_url).send().unwrap();
-    let nots: JsonArray = resp.json().unwrap();
-    debug!("{:#?}", nots);
-    info!("{:#?}", resp);
-
     if let Some(_matches) = matches.subcommand_matches("notifications") {
-        println!("{}", nots.len());
+        commands::notifications::cmd();
     }
 
     if let Some(_matches) = matches.subcommand_matches("list_notifications") {
+        let client = github::client().unwrap();
+        let routes = github::v3::api_router::get_routes().unwrap();
+        let notifications_url = routes.notifications_url;
+
+        // TODO: This shouldn't go here, it is doing a request even when we're just getting the help.
+        let mut resp = client.get(&notifications_url).send().unwrap();
+        let nots: JsonArray = resp.json().unwrap();
+
+        debug!("{:#?}", nots);
+        info!("{:#?}", resp);
+
         let mut repos_map: HashMap<String, i32> = HashMap::new();
 
         println!("Total notifications: {}", nots.len());

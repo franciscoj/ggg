@@ -12,8 +12,9 @@ pub fn cmd() {
     let client = github::client().unwrap();
     let routes = github::v3::api_router::get_routes().unwrap();
     let notifications_url = routes.notifications_url;
+    let nots = fetch_all_pages(&client, &notifications_url);
 
-    fetch_all_pages(&client, &notifications_url);
+    println!("{}", nots.len());
 }
 
 struct Page {
@@ -39,7 +40,7 @@ fn fetch_page(client: &Client, page_url: &str) -> Option<Page> {
     }
 }
 
-fn fetch_all_pages(client: &Client, url: &str) {
+fn fetch_all_pages(client: &Client, url: &str) -> JsonArray {
     let mut url_to_fetch = Some(url.to_owned());
     let mut nots = vec![];
 
@@ -54,7 +55,7 @@ fn fetch_all_pages(client: &Client, url: &str) {
         }
     }
 
-    println!("{}", nots.len());
+    nots
 }
 
 fn get_next_page(headers: Headers) -> Option<String> {

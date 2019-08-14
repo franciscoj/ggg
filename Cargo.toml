@@ -12,7 +12,7 @@ description = "Use Github from the CLI"
 clap = "2.33"
 
 # HTTP Client
-reqwest = "0.9.19"
+reqwest = { version = "0.9.19", features = ["hyper-011"] }
 
 # Env variables
 envy = "0.4"

@@ -50,13 +50,10 @@ fn fetch_all(client: &Client, url: &str) -> JsonArray {
 
 fn get_next_page_url(headers: Headers) -> Option<String> {
     if let Some(link) = headers.get::<Link>() {
-        let values = link.values();
-        let mut iter = values.iter();
+        let mut iter = link.values().iter();
 
         if let Some(rel_next) = iter.find(is_rel_next) {
-            let link = rel_next.link();
-
-            Some(link.to_owned())
+            Some(rel_next.link().to_owned())
         } else {
             None
         }

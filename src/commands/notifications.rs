@@ -17,25 +17,25 @@ pub fn cmd() {
     println!("{}", nots.len());
 }
 
-struct Page {
+struct PageResponse {
+    body: JsonArray,
     next_page_url: Option<String>,
-    content: JsonArray,
 }
 
-fn fetch_page(client: &Client, page_url: &str) -> Option<Page> {
+fn fetch_page(client: &Client, page_url: &str) -> Option<PageResponse> {
     let mut resp = client.get(page_url).send().unwrap();
     let headers = Headers::from(resp.headers().clone());
-    let content: JsonArray = resp.json().unwrap();
+    let body: JsonArray = resp.json().unwrap();
 
-    if let Some(next_page_url) = get_next_page(headers) {
-        Some(Page {
+    if let Some(next_page_url) = get_next_page_url(headers) {
+        Some(PageResponse {
+            body,
             next_page_url: Some(next_page_url),
-            content,
         })
     } else {
-        Some(Page {
+        Some(PageResponse {
+            body,
             next_page_url: None,
-            content,
         })
     }
 }
@@ -46,7 +46,7 @@ fn fetch_all_pages(client: &Client, url: &str) -> JsonArray {
 
     while let Some(ref page_url) = url_to_fetch {
         if let Some(fetched_page) = fetch_page(client, page_url) {
-            nots.extend(fetched_page.content);
+            nots.extend(fetched_page.body);
             url_to_fetch = None;
 
             if let Some(new_next_page_url) = fetched_page.next_page_url {
@@ -58,7 +58,7 @@ fn fetch_all_pages(client: &Client, url: &str) -> JsonArray {
     nots
 }
 
-fn get_next_page(headers: Headers) -> Option<String> {
+fn get_next_page_url(headers: Headers) -> Option<String> {
     if let Some(link) = headers.get::<Link>() {
         let values = link.values();
         let mut iter = values.iter();

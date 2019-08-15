@@ -39,6 +39,9 @@ impl Request {
 
 pub fn fetch_one(client: &Client, url: &str) -> PageResponse {
     let mut resp = client.get(url).send().unwrap();
+
+    debug!("{:#?}", resp);
+
     let headers = Headers::from(resp.headers().clone());
     let body: JsonArray = resp.json().unwrap();
     let next_page_url = get_next_page_url(headers);

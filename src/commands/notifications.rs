@@ -12,7 +12,7 @@ pub fn cmd() {
     let client = github::client().unwrap();
     let routes = github::v3::api_router::get_routes().unwrap();
     let notifications_url = routes.notifications_url;
-    let nots = fetch_all_pages(&client, &notifications_url);
+    let nots = fetch_all(&client, &notifications_url);
 
     println!("{}", nots.len());
 }
@@ -22,36 +22,36 @@ struct PageResponse {
     next_page_url: Option<String>,
 }
 
-fn fetch_page(client: &Client, page_url: &str) -> Option<PageResponse> {
+fn fetch_one(client: &Client, page_url: &str) -> PageResponse {
     let mut resp = client.get(page_url).send().unwrap();
     let headers = Headers::from(resp.headers().clone());
     let body: JsonArray = resp.json().unwrap();
 
     if let Some(next_page_url) = get_next_page_url(headers) {
-        Some(PageResponse {
+        PageResponse {
             body,
             next_page_url: Some(next_page_url),
-        })
+        }
     } else {
-        Some(PageResponse {
+        PageResponse {
             body,
             next_page_url: None,
-        })
+        }
     }
 }
 
-fn fetch_all_pages(client: &Client, url: &str) -> JsonArray {
+fn fetch_all(client: &Client, url: &str) -> JsonArray {
     let mut url_to_fetch = Some(url.to_owned());
     let mut nots = vec![];
 
     while let Some(ref page_url) = url_to_fetch {
-        if let Some(fetched_page) = fetch_page(client, page_url) {
-            nots.extend(fetched_page.body);
-            url_to_fetch = None;
+        let response = fetch_one(client, page_url);
 
-            if let Some(new_next_page_url) = fetched_page.next_page_url {
-                url_to_fetch = Some(new_next_page_url);
-            }
+        nots.extend(response.body);
+        url_to_fetch = None;
+
+        if let Some(new_next_page_url) = response.next_page_url {
+            url_to_fetch = Some(new_next_page_url);
         }
     }
 

@@ -26,17 +26,11 @@ fn fetch_one(client: &Client, page_url: &str) -> PageResponse {
     let mut resp = client.get(page_url).send().unwrap();
     let headers = Headers::from(resp.headers().clone());
     let body: JsonArray = resp.json().unwrap();
+    let next_page_url = get_next_page_url(headers);
 
-    if let Some(next_page_url) = get_next_page_url(headers) {
-        PageResponse {
-            body,
-            next_page_url: Some(next_page_url),
-        }
-    } else {
-        PageResponse {
-            body,
-            next_page_url: None,
-        }
+    PageResponse {
+        body,
+        next_page_url,
     }
 }
 
@@ -48,11 +42,7 @@ fn fetch_all(client: &Client, url: &str) -> JsonArray {
         let response = fetch_one(client, page_url);
 
         nots.extend(response.body);
-        url_to_fetch = None;
-
-        if let Some(new_next_page_url) = response.next_page_url {
-            url_to_fetch = Some(new_next_page_url);
-        }
+        url_to_fetch = response.next_page_url;
     }
 
     nots

@@ -17,12 +17,13 @@ The main purpose of developing such a tool is that I teach myself some Rust.
 
   - [x] Be able to count pending notifications on Github.
   - [x] Be able to list pending notifications per repo.
-  - [ ] Interactive interface for notifications.  Allow to list, inspect and
+  - [ ] Interactive interface for notifications. Allow to list, inspect and
    comment/reply when possible. Grab some inspiration from
     [yarn-upgrade-interactive]
 
 ### Integrations / Editor plugins
-  - [ ] Notifications indicator plugin for tmux/Vim.
+  - [ ] Notifications indicator plugin for tmux/Vim. Grab some inspiration from
+      [tmux-cpu]
   - [ ] Current pull request notifications indicator for Vim. (If the current
       branch is a PR show notifications on it together with the code
       associated, if any)
@@ -44,3 +45,4 @@ The main purpose of developing such a tool is that I teach myself some Rust.
 [cli]: https://rust-lang-nursery.github.io/cli-wg/index.html
 [cookbook]: https://rust-lang-nursery.github.io/rust-cookbook/intro.html
 [yarn-upgrade-interactive]: https://yarnpkg.com/lang/en/docs/cli/upgrade-interactive/
+[tmux-cpu]: https://github.com/tmux-plugins/tmux-cpu

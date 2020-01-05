@@ -52,8 +52,6 @@ pub async fn fetch_one(client: &Client, url: &str) -> PageResponse {
 }
 
 fn get_next_page_url(headers: &HeaderMap) -> Option<String> {
-    info!("{:?}", headers);
-
     if let Some(link) = headers.get(LINK) {
         return link_header::parse(link.to_str().unwrap());
     }

@@ -1,10 +1,6 @@
 mod commands;
 mod github;
 
-#[macro_use]
-extern crate log;
-extern crate env_logger;
-
 use clap::{App, SubCommand};
 
 #[tokio::main]

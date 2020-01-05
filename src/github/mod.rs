@@ -5,12 +5,11 @@ use reqwest::header;
 use reqwest::header::HeaderMap;
 use reqwest::{Client, Error};
 
+// User agent is mandatory for github's API. Oterwise it responds with a 403
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
 pub fn client() -> Result<Client, Error> {
     let headers = build_default_headers();
-
-    debug!("Request Headers {:?}", headers);
 
     Client::builder()
         .user_agent(APP_USER_AGENT)

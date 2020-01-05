@@ -7,7 +7,8 @@ extern crate env_logger;
 
 use clap::{App, SubCommand};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     env_logger::init();
 
     const VERSION: &str = env!("CARGO_PKG_VERSION");

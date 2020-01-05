@@ -22,4 +22,3 @@ pub fn cmd() {
         println!("Notifications {}: {}", repo, nots_count);
     }
 }
-

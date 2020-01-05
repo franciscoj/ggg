@@ -1,18 +1,18 @@
-use reqwest::hyper_011::{
-    header::{Link, LinkValue, RelationType},
-    Headers,
+use super::link_header;
+use futures::executor::block_on;
+use reqwest::{
+    header::{HeaderMap, LINK},
+    Client,
 };
-
 use serde_json::Value;
-use reqwest::Client;
 
 type JsonArray = Vec<Value>;
 
 pub struct Request {
-    url: String
+    url: String,
 }
 
-pub struct PageResponse{
+pub struct PageResponse {
     body: JsonArray,
     next_page_url: Option<String>,
 }
@@ -24,27 +24,26 @@ impl Request {
 
     pub fn fetch_all(&self, client: &Client) -> JsonArray {
         let mut url_to_fetch = Some(self.url.to_owned());
-        let mut nots = vec![];
+        let mut items = vec![];
 
         while let Some(page_url) = url_to_fetch {
-            let response = fetch_one(client, &page_url);
+            let response = block_on(fetch_one(client, &page_url));
 
-            nots.extend(response.body);
+            items.extend(response.body);
             url_to_fetch = response.next_page_url;
         }
 
-        nots
+        items
     }
 }
 
-pub fn fetch_one(client: &Client, url: &str) -> PageResponse {
-    let mut resp = client.get(url).send().unwrap();
-
-    debug!("{:#?}", resp);
-
-    let headers = Headers::from(resp.headers().clone());
-    let body: JsonArray = resp.json().unwrap();
+pub async fn fetch_one(client: &Client, url: &str) -> PageResponse {
+    let request_builder = client.get(url);
+    let response = request_builder.send().await.unwrap();
+    let headers = response.headers();
     let next_page_url = get_next_page_url(headers);
+
+    let body: JsonArray = response.json::<JsonArray>().await.unwrap();
 
     PageResponse {
         body,
@@ -52,24 +51,12 @@ pub fn fetch_one(client: &Client, url: &str) -> PageResponse {
     }
 }
 
-fn get_next_page_url(headers: Headers) -> Option<String> {
-    if let Some(link) = headers.get::<Link>() {
-        let mut iter = link.values().iter();
+fn get_next_page_url(headers: &HeaderMap) -> Option<String> {
+    info!("{:?}", headers);
 
-        if let Some(rel_next) = iter.find(is_rel_next) {
-            Some(rel_next.link().to_owned())
-        } else {
-            None
-        }
-    } else {
-        None
+    if let Some(link) = headers.get(LINK) {
+        return link_header::parse(link.to_str().unwrap());
     }
-}
 
-fn is_rel_next(link_value: &&LinkValue) -> bool {
-    if let Some(rels_v) = link_value.rel() {
-        rels_v.contains(&RelationType::Next)
-    } else {
-        false
-    }
+    None
 }

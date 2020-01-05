@@ -1,17 +1,24 @@
-pub mod v3;
 mod credentials;
+pub mod v3;
 
 use reqwest::header;
 use reqwest::header::HeaderMap;
 use reqwest::{Client, Error};
 
-pub fn client() -> Result<Client, Error> {
-    let headers = get_headers();
+static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
-    Client::builder().default_headers(headers).build()
+pub fn client() -> Result<Client, Error> {
+    let headers = build_default_headers();
+
+    debug!("Request Headers {:?}", headers);
+
+    Client::builder()
+        .user_agent(APP_USER_AGENT)
+        .default_headers(headers)
+        .build()
 }
 
-fn get_headers() -> HeaderMap {
+pub fn build_default_headers() -> HeaderMap {
     let mut headers = HeaderMap::new();
     let token = format!("token {}", credentials::github_api_token());
 
